@@ -1,0 +1,81 @@
+@model IEnumerable<CarPoolingApp.Models.Ride>
+
+@{
+    ViewData["Title"] = "Ride Board";
+}
+
+<section class="ride-page">
+    <div class="ride-header">
+        <div class="ride-header-copy">
+            <p class="section-label">Ride Management</p>
+            <h1>Ride board</h1>
+            <p>
+                Manage posted trips, review seat availability, and update route details from one clear dashboard.
+            </p>
+        </div>
+        <div class="header-actions">
+            <a asp-action="Create" class="btn btn-primary">Offer a Ride</a>
+            <a asp-action="FindRide" class="btn btn-secondary">Find Rides</a>
+        </div>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="data-table-card">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>Ride</th>
+                        <th>Route</th>
+                        <th>Departure</th>
+                        <th>Seats</th>
+                        <th>Price</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <span class="table-pill">#@item.RideId</span>
+                            </td>
+                            <td class="table-route">
+                                <strong>@item.FromLocation</strong>
+                                <span>to</span>
+                                <strong> @item.ToLocation</strong>
+                            </td>
+                            <td>
+                                <strong>@item.DepartureTime.ToString("dd MMM yyyy")</strong>
+                                <div class="text-muted">@item.DepartureTime.ToString("h:mm tt")</div>
+                            </td>
+                            <td>
+                                <strong>@item.AvailableSeats</strong> / @item.TotalSeats
+                            </td>
+                            <td>@item.PricePerSeat.ToString("C")</td>
+                            <td>@item.CreatedAt.ToString("dd MMM yyyy")</td>
+                            <td>
+                                <div class="action-links">
+                                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                                    <a asp-action="Details" asp-route-id="@item.Id">Details</a>
+                                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <h3>No rides posted yet</h3>
+            <p>Create your first ride to start building the board.</p>
+            <div class="action-row justify-content-center">
+                <a asp-action="Create" class="btn btn-primary">Create a Ride</a>
+            </div>
+        </div>
+    }
+</section>

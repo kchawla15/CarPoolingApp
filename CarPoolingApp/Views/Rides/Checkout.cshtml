@@ -1,0 +1,45 @@
+﻿@model CheckoutViewModel
+
+<h2>Book Ride</h2>
+
+<div class="card p-3 mb-3">
+
+    <p><strong>From:</strong> @Model.FromLocation</p>
+    <p><strong>To:</strong> @Model.ToLocation</p>
+
+    <p>
+        <strong>Departure:</strong>
+        @Model.DepartureTime.ToString("ddd, dd MMM yyyy h:mm tt")
+    </p>
+
+    <p><strong>Price per seat:</strong> @Model.PricePerSeat.ToString("C")</p>
+
+</div>
+
+<form asp-action="Checkout" method="post">
+
+    <input type="hidden" asp-for="RideId" />
+
+    <div class="mb-3">
+        <label class="form-label"><strong>Select Payment Method</strong></label>
+
+        <div>
+            <input type="radio" asp-for="PaymentMethod" value="Cash" />
+            <label>Cash (pay before ride)</label>
+        </div>
+
+        <div>
+            <input type="radio" asp-for="PaymentMethod" value="Bank Transfer" />
+            <label>Bank Transfer (pay before ride)</label>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        Confirm Booking
+    </button>
+
+    <a asp-action="FindRide" class="btn btn-secondary">
+        Cancel
+    </a>
+
+</form>

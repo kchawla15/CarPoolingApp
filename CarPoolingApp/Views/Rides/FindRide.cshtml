@@ -1,0 +1,151 @@
+@model IEnumerable<CarPoolingApp.Models.Ride>
+
+@{
+    ViewData["Title"] = "Find Ride";
+    var hasSearched = ViewBag.HasSearched == true;
+    var currentFromLocation = Context.Request.Query["fromLocation"].ToString();
+    var currentToLocation = Context.Request.Query["toLocation"].ToString();
+    var currentDepartureDate = Context.Request.Query["departureDate"].ToString();
+    var ridesList = Model?.ToList() ?? new List<CarPoolingApp.Models.Ride>();
+}
+
+<section class="ride-page">
+    <div class="ride-header">
+        <div class="ride-header-copy">
+            <p class="section-label">Ride Search</p>
+            <h1>Find a ride</h1>
+            <p>
+                Search by pickup, destination, and departure date to see matching trips quickly.
+            </p>
+        </div>
+        <div class="header-actions">
+            <a asp-action="Create" class="btn btn-secondary">Offer Instead</a>
+            <a asp-action="Index" class="btn btn-secondary">View Ride Board</a>
+        </div>
+    </div>
+
+    <div class="search-card">
+        <form asp-action="FindRide" method="get" class="search-grid">
+            <div class="form-group mb-0">
+                <label for="fromLocation" class="form-label">Pickup location</label>
+                <input type="text" id="fromLocation" name="fromLocation" class="form-control" placeholder="Enter pickup location" value="@currentFromLocation" />
+            </div>
+            <div class="form-group mb-0">
+                <label for="toLocation" class="form-label">Destination</label>
+                <input type="text" id="toLocation" name="toLocation" class="form-control" placeholder="Enter destination" value="@currentToLocation" />
+            </div>
+            <div class="form-group mb-0">
+                <label for="departureDate" class="form-label">Travel date</label>
+                <input type="date" id="departureDate" name="departureDate" class="form-control" value="@currentDepartureDate" required />
+            </div>
+            <div class="form-group mb-0">
+                <button type="submit" class="btn btn-primary w-100">Search rides</button>
+            </div>
+        </form>
+    </div>
+
+    @if (ViewBag.SearchError != null)
+    {
+        <div class="empty-state">
+            <h3>Ride data is unavailable right now</h3>
+            <p>@ViewBag.SearchError</p>
+        </div>
+    }
+
+    @if (ViewBag.SearchError == null && !hasSearched)
+    {
+        <div class="empty-state">
+            <h3>Ready when you are</h3>
+            <p>Enter a route and travel date to see matching rides.</p>
+        </div>
+    }
+    else if (ViewBag.SearchError == null && ridesList.Any())
+    {
+        <div class="results-grid">
+            @foreach (var ride in ridesList)
+            {
+                <article class="ride-result-card">
+                    <span class="meta-pill">Ride #@ride.RideId</span>
+                    <div class="route-line">
+                        <span>@ride.FromLocation</span>
+                        <span class="route-arrow">to</span>
+                        <span>@ride.ToLocation</span>
+                    </div>
+                    <div class="metric-row">
+                        <div class="metric">
+                            <span>Departure</span>
+                            <strong>@ride.DepartureTime.ToString("ddd, dd MMM yyyy")</strong>
+                            <div>@ride.DepartureTime.ToString("h:mm tt")</div>
+                        </div>
+                        <div class="metric">
+                            <span>Available seats</span>
+                            <strong>@ride.AvailableSeats seat(s)</strong>
+                        </div>
+                        <div class="metric">
+                            <span>Price per seat</span>
+                            <strong>@ride.PricePerSeat.ToString("C")</strong>
+                        </div>
+                        <div class="metric">
+                            <span>Driver reference</span>
+                            <strong>@ride.DriverId</strong>
+                        </div>
+                    </div>
+                    <div class="action-row">
+
+                        <a asp-action="Details" asp-route-id="@ride.Id" class="btn btn-secondary">
+                            View details
+                        </a>
+
+                        @if (hasSearched)
+                        {
+                            if (ride.AvailableSeats > 0 && ride.DepartureTime > DateTime.Now)
+                            {
+                                <a asp-action="Checkout" asp-route-rideId="@ride.Id" class="btn btn-success">
+                                    Book Ride
+                                </a>
+                            }
+                            else if (ride.DepartureTime <= DateTime.Now)
+                            {
+                                <button class="btn btn-secondary" disabled>
+                                    Departed
+                                </button>
+                            }
+                            else
+                            {
+                                <button class="btn btn-secondary" disabled>
+                                    Booked Out
+                                </button>
+                            }
+                        }
+
+                    </div>
+                </article>
+            }
+        </div>
+    }
+    else if (ViewBag.SearchError == null)
+    {
+        <div class="empty-state">
+            <h3>No rides found for this search</h3>
+            <p>Try a broader location match or choose another departure date.</p>
+        </div>
+    }
+</section>
+
+@section Scripts {
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places&callback=initAutocomplete" async defer></script>
+    <script>
+        function initAutocomplete() {
+            const fromInput = document.getElementById("fromLocation");
+            const toInput = document.getElementById("toLocation");
+
+            if (fromInput) {
+                new google.maps.places.Autocomplete(fromInput);
+            }
+
+            if (toInput) {
+                new google.maps.places.Autocomplete(toInput);
+            }
+        }
+    </script>
+}

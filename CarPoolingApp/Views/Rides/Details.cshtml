@@ -1,0 +1,64 @@
+@model CarPoolingApp.Models.Ride
+
+@{
+    ViewData["Title"] = "Ride Details";
+}
+
+<section class="ride-page">
+    <div class="detail-card">
+        <div class="detail-intro">
+            <p class="section-label">Ride Details</p>
+            <div style="font-size: 22px; font-weight: 600; margin-bottom: 10px;">
+                <span style="color: gray;">From:</span>
+                <span>@Model.FromLocation</span>
+            </div>
+
+            <div style="font-size: 22px; font-weight: 600;">
+                <span style="color: gray;">To:</span>
+                <span>@Model.ToLocation</span>
+            </div>
+            <p>Review the key route, timing, and pricing information for this trip.</p>
+        </div>
+
+        <div class="detail-grid">
+            <div class="detail-item">
+                <span>Ride ID</span>
+                <div class="detail-value"><strong>@Model.RideId</strong></div>
+            </div>
+            <div class="detail-item">
+                <span>Driver reference</span>
+                <div class="detail-value"><strong>@Model.DriverId</strong></div>
+            </div>
+            <div class="detail-item">
+                <span>Departure</span>
+                <div class="detail-value">
+                    <strong>@Model.DepartureTime.ToString("dddd, dd MMMM yyyy")</strong>
+                    <span>@Model.DepartureTime.ToString("h:mm tt")</span>
+                </div>
+            </div>
+            <div class="detail-item">
+                <span>Total seats</span>
+                <div class="detail-value"><strong>@Model.TotalSeats</strong></div>
+            </div>
+            <div class="detail-item">
+                <span>Available seats</span>
+                <div class="detail-value"><strong>@Model.AvailableSeats</strong></div>
+            </div>
+            <div class="detail-item">
+                <span>Price per seat</span>
+                <div class="detail-value"><strong>@Model.PricePerSeat.ToString("C")</strong></div>
+            </div>
+            <div class="detail-item">
+                <span>Created at</span>
+                <div class="detail-value"><strong>@Model.CreatedAt.ToString("dd MMM yyyy h:mm tt")</strong></div>
+            </div>
+        </div>
+
+        <div class="action-row">
+            <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-primary">Edit</a>
+            <a href="javascript:history.back()" class="btn btn-secondary">
+                Back
+            </a>
+        </div>
+    </div>
+</section>
