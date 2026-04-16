@@ -265,7 +265,7 @@ namespace CarPoolingApp.Controllers
                 return NotFound();
 
             // Seats check (MISSING RIGHT NOW)
-            if (ride.AvailableSeats <= 0)
+            if (ride.AvailableSeats <= 1)
             {
                 TempData["Error"] = "Ride is fully booked";
                 return RedirectToAction("FindRide");
@@ -289,14 +289,20 @@ namespace CarPoolingApp.Controllers
             return View(vm);
         }
 
+       
         [HttpPost]
         public async Task<IActionResult> Checkout(CheckoutViewModel vm)
         {
             var ride = await _context.Rides.FindAsync(vm.RideId);
 
-            var userId = User.Identity?.Name;
+            if (ride == null)
+                return NotFound();
 
-            // prevent duplicate booking
+            // Get correct user
+            var user = await _userManager.GetUserAsync(User);
+            var userId = user?.Id;
+
+            // Prevent duplicate booking
             var alreadyBooked = await _context.Bookings
                 .AnyAsync(b => b.RideId == vm.RideId && b.PassengerId == userId);
 
@@ -306,37 +312,35 @@ namespace CarPoolingApp.Controllers
                 return RedirectToAction("FindRide");
             }
 
-            if (ride == null)
-                return NotFound();
-
-            // Seats check (MISSING RIGHT NOW)
-            if (ride.AvailableSeats <= 0)
+            // Seat check
+            if (ride.AvailableSeats <= 1)
             {
                 TempData["Error"] = "Ride is fully booked";
                 return RedirectToAction("FindRide");
             }
 
-
+            // Departure check
             if (ride.DepartureTime < DateTime.Now)
             {
                 TempData["Error"] = "This ride has already departed";
                 return RedirectToAction("FindRide");
             }
 
+            // Payment check
             if (string.IsNullOrEmpty(vm.PaymentMethod))
             {
                 ModelState.AddModelError("", "Select payment method");
                 return View(vm);
             }
 
+            // Reduce seat
             ride.AvailableSeats -= 1;
 
-            var user = await _userManager.GetUserAsync(User);
-
+            // Create booking
             var booking = new Booking
             {
                 RideId = ride.Id,
-                PassengerId = user?.Id,
+                PassengerId = userId,
                 BookingTime = DateTime.Now,
                 PaymentMethod = vm.PaymentMethod
             };
@@ -344,8 +348,7 @@ namespace CarPoolingApp.Controllers
             _context.Bookings.Add(booking);
             await _context.SaveChangesAsync();
 
-            // EMAIL STARTS HERE
-
+            // Send email
             if (user != null && !string.IsNullOrEmpty(user.Email))
             {
                 await _emailService.SendEmailAsync(
@@ -354,7 +357,7 @@ namespace CarPoolingApp.Controllers
                     $"Your ride from {ride.FromLocation} to {ride.ToLocation} on {ride.DepartureTime} has been successfully booked."
                 );
             }
-            // EMAIL ENDS HERE
+
             return RedirectToAction("Confirmation", new { id = booking.Id });
         }
 
@@ -374,7 +377,8 @@ namespace CarPoolingApp.Controllers
         [HttpGet]
         public async Task<IActionResult> MyBookings()
         {
-            var userId = User.Identity?.Name;
+            var user = await _userManager.GetUserAsync(User);
+            var userId = user?.Id;
 
             var bookings = await _context.Bookings
                 .Include(b => b.Ride)
@@ -385,7 +389,7 @@ namespace CarPoolingApp.Controllers
             return View(bookings);
         }
 
-       
+
         [HttpPost]
         public async Task<IActionResult> CancelBooking(int bookingId)
         {
