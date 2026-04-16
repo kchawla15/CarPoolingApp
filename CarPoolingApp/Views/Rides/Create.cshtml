@@ -75,7 +75,9 @@
 </section>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC37vTS8DVbjIhrTm6XB5-G8FTzoMrZ20A&libraries=places&callback=initAutocomplete" async defer></script>
     <script>
         function initAutocomplete() {
@@ -83,12 +85,17 @@
             const toInput = document.getElementById("toLocation");
 
             if (fromInput) {
-                new google.maps.places.Autocomplete(fromInput);
+                new google.maps.places.Autocomplete(fromInput, {
+                    componentRestrictions: { country: "nz" }
+                });
             }
 
             if (toInput) {
-                new google.maps.places.Autocomplete(toInput);
+                new google.maps.places.Autocomplete(toInput, {
+                    componentRestrictions: { country: "nz" }
+                });
             }
         }
     </script>
+}
 }
