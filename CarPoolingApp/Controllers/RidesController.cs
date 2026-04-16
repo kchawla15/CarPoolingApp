@@ -294,6 +294,18 @@ namespace CarPoolingApp.Controllers
         {
             var ride = await _context.Rides.FindAsync(vm.RideId);
 
+            var userId = User.Identity?.Name;
+
+            // prevent duplicate booking
+            var alreadyBooked = await _context.Bookings
+                .AnyAsync(b => b.RideId == vm.RideId && b.PassengerId == userId);
+
+            if (alreadyBooked)
+            {
+                TempData["Error"] = "You have already booked this ride";
+                return RedirectToAction("FindRide");
+            }
+
             if (ride == null)
                 return NotFound();
 
@@ -319,10 +331,12 @@ namespace CarPoolingApp.Controllers
 
             ride.AvailableSeats -= 1;
 
+            var user = await _userManager.GetUserAsync(User);
+
             var booking = new Booking
             {
                 RideId = ride.Id,
-                PassengerId = User.Identity?.Name,
+                PassengerId = user?.Id,
                 BookingTime = DateTime.Now,
                 PaymentMethod = vm.PaymentMethod
             };
@@ -331,7 +345,6 @@ namespace CarPoolingApp.Controllers
             await _context.SaveChangesAsync();
 
             // EMAIL STARTS HERE
-            var user = await _userManager.GetUserAsync(User);
 
             if (user != null && !string.IsNullOrEmpty(user.Email))
             {
@@ -380,16 +393,21 @@ namespace CarPoolingApp.Controllers
                 .Include(b => b.Ride)
                 .FirstOrDefaultAsync(b => b.Id == bookingId);
 
-            if (booking == null || booking.Ride == null)
+            if (booking == null)
+            {
                 return NotFound();
+            }
 
-            booking.Ride.AvailableSeats += 1;
+            // restore seat
+            if (booking.Ride != null)
+            {
+                booking.Ride.AvailableSeats += 1;
+            }
 
+            // remove booking
             _context.Bookings.Remove(booking);
 
             await _context.SaveChangesAsync();
-
-            TempData["Success"] = "Booking cancelled successfully";
 
             return RedirectToAction("MyBookings");
         }
