@@ -30,7 +30,16 @@ namespace CarPoolingApp.Controllers
         [Authorize]
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Rides.ToListAsync());
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user == null)
+                return Unauthorized();
+
+            var rides = await _context.Rides
+                .Where(r => r.DriverId == user.DriverNumber.ToString())
+                .ToListAsync();
+
+            return View(rides);
         }
 
         // GET: Rides/FindRide
@@ -344,7 +353,7 @@ namespace CarPoolingApp.Controllers
             return View(bookings);
         }
 
-        [HttpPost]
+       
         [HttpPost]
         public async Task<IActionResult> CancelBooking(int bookingId)
         {
