@@ -48,3 +48,5 @@ app.MapControllerRoute(
 app.MapRazorPages();
 
 app.Run();
+
+builder.Services.AddTransient<CarPoolingApp.Services.EmailService>();

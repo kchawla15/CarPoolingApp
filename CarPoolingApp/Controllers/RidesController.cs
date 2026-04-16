@@ -9,21 +9,28 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
+using CarPoolingApp.Services;
 
 namespace CarPoolingApp.Controllers
 {
+
 
     [Authorize]
     public class RidesController : Controller
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly EmailService _emailService;
 
 
-        public RidesController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        public RidesController(
+     ApplicationDbContext context,
+     UserManager<ApplicationUser> userManager,
+     EmailService emailService)
         {
             _context = context;
             _userManager = userManager;
+            _emailService = emailService;
         }
 
         // GET: Rides
@@ -323,6 +330,18 @@ namespace CarPoolingApp.Controllers
             _context.Bookings.Add(booking);
             await _context.SaveChangesAsync();
 
+            // EMAIL STARTS HERE
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user != null && !string.IsNullOrEmpty(user.Email))
+            {
+                await _emailService.SendEmailAsync(
+                    user.Email,
+                    "Ride Booking Confirmed",
+                    $"Your ride from {ride.FromLocation} to {ride.ToLocation} on {ride.DepartureTime} has been successfully booked."
+                );
+            }
+            // EMAIL ENDS HERE
             return RedirectToAction("Confirmation", new { id = booking.Id });
         }
 
