@@ -1,0 +1,167 @@
+﻿@model CreditWorksVehicleManagement.ViewModels.VehicleListViewModel
+
+@{
+    ViewData["Title"] = "Vehicles";
+}
+
+<div class="container py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1>Vehicles</h1>
+            <p class="text-muted">
+                View and manage registered vehicles.
+            </p>
+        </div>
+
+        <a asp-action="Create" class="btn btn-primary">
+            Add Vehicle
+        </a>
+    </div>
+
+    <div class="data-table-card p-3">
+
+        <div class="d-flex justify-content-end mb-3">
+
+            <div class="d-flex align-items-center gap-2">
+
+                <label for="sortBy" class="form-label mb-0 text-nowrap">
+                    Sort by:
+                </label>
+
+                <select id="sortBy"
+                        class="form-select"
+                        style="min-width: 180px;"
+                        onchange="applySorting()">
+
+                    <option value="Owner"
+                            selected="@(Model.SortBy == "Owner")">
+                        Owner
+                    </option>
+
+                    <option value="Manufacturer"
+                            selected="@(Model.SortBy == "Manufacturer")">
+                        Manufacturer
+                    </option>
+
+                    <option value="Year"
+                            selected="@(Model.SortBy == "Year")">
+                        Year
+                    </option>
+
+                    <option value="Weight"
+                            selected="@(Model.SortBy == "Weight")">
+                        Weight
+                    </option>
+
+                </select>
+
+                <select id="sortDirection"
+                        class="form-select"
+                        style="min-width: 180px;"
+                        onchange="applySorting()">
+
+                    <option value="asc"
+                            selected="@(Model.SortDirection == "asc")">
+                        Ascending
+                    </option>
+
+                    <option value="desc"
+                            selected="@(Model.SortDirection == "desc")">
+                        Descending
+                    </option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+        @if (!Model.Vehicles.Any())
+        {
+            <div class="text-center py-5">
+
+                <h4>No vehicles found</h4>
+
+                <p class="text-muted">
+                    Add a vehicle to get started.
+                </p>
+
+                <a asp-action="Create"
+                   class="btn btn-primary">
+                    Add Vehicle
+                </a>
+
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+
+                <table class="table align-middle mb-0">
+
+                    <thead>
+                        <tr>
+                            <th>Owner</th>
+                            <th>Manufacturer</th>
+                            <th>Year</th>
+                            <th>Weight</th>
+                            <th>Category</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var vehicle in Model.Vehicles)
+                        {
+                            <tr>
+
+                                <td>
+                                    @vehicle.OwnerName
+                                </td>
+
+                                <td>
+                                    @vehicle.ManufacturerName
+                                </td>
+
+                                <td>
+                                    @vehicle.YearOfManufacture
+                                </td>
+
+                                <td>
+                                    @vehicle.WeightKg.ToString("0.00") kg
+                                </td>
+
+                                <td>
+                                    <span style="font-size: 1.5rem;">
+                                        @vehicle.CategoryIcon
+                                    </span>
+
+                                    @vehicle.CategoryName
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+        }
+
+    </div>
+
+</div>
+
+@section Scripts {
+    <script>
+        function applySorting() {
+            const sortBy = document.getElementById("sortBy").value;
+            const sortDirection = document.getElementById("sortDirection").value;
+
+            window.location.href =
+                `/Vehicles?sortBy=${encodeURIComponent(sortBy)}&sortDirection=${encodeURIComponent(sortDirection)}`;
+        }
+    </script>
+}

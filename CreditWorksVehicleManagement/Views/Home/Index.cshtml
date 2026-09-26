@@ -1,0 +1,35 @@
+﻿@{
+    ViewData["Title"] = "Home";
+}
+
+<section class="home-hero">
+
+    <p class="section-label">
+        Vehicle Management Made Simple
+    </p>
+
+    <h1>
+        Vehicle Management
+    </h1>
+
+    <p class="home-subtitle">
+        Manage vehicles and vehicle weight categories in one place.
+    </p>
+
+    <div class="hero-actions">
+
+        <a asp-controller="Vehicles"
+           asp-action="Index"
+           class="btn btn-primary">
+            View Vehicles
+        </a>
+
+        <a asp-controller="Vehicles"
+           asp-action="Create"
+           class="btn btn-secondary">
+            Add Vehicle
+        </a>
+
+    </div>
+
+</section>
