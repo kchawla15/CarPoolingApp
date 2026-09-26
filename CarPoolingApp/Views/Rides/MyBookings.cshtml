@@ -1,0 +1,83 @@
+﻿@model IEnumerable<CarPoolingApp.Models.Booking>
+
+@{
+    ViewData["Title"] = "My Bookings";
+}
+
+<section class="ride-page">
+
+    <div class="ride-header">
+        <div class="ride-header-copy">
+            <p class="section-label">Booking Management</p>
+            <h1>My Bookings</h1>
+            <p>View all your booked rides in one place.</p>
+        </div>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="data-table-card">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>Route</th>
+                        <th>Departure</th>
+                        <th>Price</th>
+                        <th>Payment</th>
+                        <th>Booked</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var booking in Model)
+                    {
+                        <tr>
+                            <td class="table-route">
+                                <strong>@booking.Ride?.FromLocation</strong>
+                                <span>to</span>
+                                <strong> @booking.Ride?.ToLocation</strong>
+                            </td>
+
+                            <td>
+                                <strong>@booking.Ride?.DepartureTime.ToString("dd MMM yyyy")</strong>
+                                <div class="text-muted">
+                                    @booking.Ride?.DepartureTime.ToString("h:mm tt")
+                                </div>
+                            </td>
+
+                            <td>
+                                @booking.Ride?.PricePerSeat.ToString("C")
+                            </td>
+
+                            <td>
+                                @booking.PaymentMethod
+                            </td>
+
+                            <td>
+                                @booking.BookingTime.ToString("dd MMM yyyy")
+                            </td>
+                            <td>
+                                <form asp-action="CancelBooking" method="post" style="display:inline;">
+                                    <input type="hidden" name="bookingId" value="@booking.Id" />
+                                    <button type="submit" class="btn btn-danger btn-sm"
+                                            onclick="return confirm('Are you sure you want to cancel this booking?');">
+                                        Cancel
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <h3>No bookings yet</h3>
+            <p>You haven’t booked any rides.</p>
+        </div>
+    }
+
+</section>

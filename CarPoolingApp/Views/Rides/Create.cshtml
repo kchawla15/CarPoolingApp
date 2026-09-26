@@ -1,0 +1,101 @@
+@model CarPoolingApp.Models.Ride
+
+@{
+    ViewData["Title"] = "Offer Ride";
+}
+
+<section class="ride-page ride-form-shell">
+    <aside class="ride-form-side">
+        <p class="section-label">Offer a Ride</p>
+        <h1>Create a new ride</h1>
+        <p>
+            Publish the trip you are already taking and make the key information easy for passengers to understand.
+        </p>
+        <ul>
+            <li>Use clear pickup and destination locations.</li>
+            <li>Set departure time, seat count, and price once.</li>
+            <li>The ride ID will be generated automatically.</li>
+        </ul>
+    </aside>
+
+    <div class="ride-form-card">
+        <div class="card-intro">
+            <p class="section-label">Trip Details</p>
+            <h2>Create your ride</h2>
+            <p>Enter the essential trip details below.</p>
+        </div>
+
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="form-group">
+                <label>Ride ID</label>
+                <input value="Auto-generated after submission" class="form-control" readonly />
+                <div class="form-hint">The system will assign a unique ride number for you.</div>
+            </div>
+
+            <div class="ride-grid">
+                <div class="form-group">
+                    <label for="fromLocation" class="control-label">Pickup location</label>
+                    <input asp-for="FromLocation" class="form-control" id="fromLocation" placeholder="Where does the trip start?" />
+                    <span asp-validation-for="FromLocation" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="toLocation" class="control-label">Destination</label>
+                    <input asp-for="ToLocation" class="form-control" id="toLocation" placeholder="Where are you going?" />
+                    <span asp-validation-for="ToLocation" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="DepartureTime" class="control-label">Departure date and time</label>
+                    <input asp-for="DepartureTime" class="form-control" />
+                    <span asp-validation-for="DepartureTime" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="TotalSeats" class="control-label">Seats available</label>
+                    <input asp-for="TotalSeats" class="form-control" placeholder="How many seats are available?" />
+                    <span asp-validation-for="TotalSeats" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="PricePerSeat" class="control-label">Price per seat</label>
+                <input asp-for="PricePerSeat" class="form-control" placeholder="Enter the cost per seat" />
+                <span asp-validation-for="PricePerSeat" class="text-danger"></span>
+            </div>
+
+            <div class="action-row">
+                <input type="submit" value="Create Ride" class="btn btn-primary" />
+                <a asp-action="Index" class="btn btn-secondary">Back</a>
+            </div>
+        </form>
+    </div>
+</section>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC37vTS8DVbjIhrTm6XB5-G8FTzoMrZ20A&libraries=places&callback=initAutocomplete" async defer></script>
+    <script>
+        function initAutocomplete() {
+            const fromInput = document.getElementById("fromLocation");
+            const toInput = document.getElementById("toLocation");
+
+            if (fromInput) {
+                new google.maps.places.Autocomplete(fromInput, {
+                    componentRestrictions: { country: "nz" }
+                });
+            }
+
+            if (toInput) {
+                new google.maps.places.Autocomplete(toInput, {
+                    componentRestrictions: { country: "nz" }
+                });
+            }
+        }
+    </script>
+}
+

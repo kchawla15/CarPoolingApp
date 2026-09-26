@@ -1,0 +1,55 @@
+@model CarPoolingApp.Models.Ride
+
+@{
+    ViewData["Title"] = "Delete Ride";
+}
+
+<section class="ride-page">
+    <div class="danger-card">
+        <span class="danger-note">Delete Confirmation</span>
+        <div class="detail-intro mt-3">
+            <h1>Remove this ride?</h1>
+            <p>
+                Review the trip summary below before permanently deleting the ride.
+            </p>
+        </div>
+
+        <div class="detail-grid">
+            <div class="detail-item">
+                <span>Ride ID</span>
+                <div class="detail-value"><strong>@Model.RideId</strong></div>
+            </div>
+            <div class="detail-item">
+                <span>Driver reference</span>
+                <div class="detail-value"><strong>@Model.DriverId</strong></div>
+            </div>
+            <div class="detail-item">
+                <span>Route</span>
+                <div class="detail-value">
+                    <strong>@Model.FromLocation</strong>
+                    <span>to @Model.ToLocation</span>
+                </div>
+            </div>
+            <div class="detail-item">
+                <span>Departure</span>
+                <div class="detail-value"><strong>@Model.DepartureTime.ToString("dd MMM yyyy h:mm tt")</strong></div>
+            </div>
+            <div class="detail-item">
+                <span>Seats</span>
+                <div class="detail-value"><strong>@Model.AvailableSeats / @Model.TotalSeats available</strong></div>
+            </div>
+            <div class="detail-item">
+                <span>Price per seat</span>
+                <div class="detail-value"><strong>@Model.PricePerSeat.ToString("C")</strong></div>
+            </div>
+        </div>
+
+        <form asp-action="Delete" class="mt-4">
+            <input type="hidden" asp-for="Id" />
+            <div class="action-row">
+                <input type="submit" value="Delete Ride" class="btn btn-danger" />
+                <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+            </div>
+        </form>
+    </div>
+</section>
